@@ -9,3 +9,22 @@ pip install -r requirements.txt
 ```py
 python manage.py runserver
 ```
+
+# Scrape
+
+```py
+python manage.py scrape
+```
+
+# Setup DB
+
+```py
+python manage.py makemigrations src
+python manage.py migrate
+```
+
+# Updating DB
+
+```py
+python manage.py migrate
+```
