@@ -2,27 +2,61 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Available Classrooms</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CPP Open Classroom Finder</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>CPP Open Classroom Finder</h1>
+      <form method="post">
+        {% csrf_token %}
+        <div class="row">
+          <select name="day">
+            <option value="" disabled selected>Select Day</option>
+            {% for day_value, day_label in form.day.field.choices %}
+            <option value="{{ day_value }}">{{ day_label }}</option>
+            {% endfor %}
+          </select>
+          <select name="start_time">
+            <option value="" disabled selected>Select Start Time</option>
+            {% for time_value, time_label in form.start_time.field.choices %}
+            <option value="{{ time_value }}">{{ time_label }}</option>
+            {% endfor %}
+          </select>
+          <select name="end_time">
+            <option value="" disabled selected>Select End Time</option>
+            {% for time_value, time_label in form.end_time.field.choices %}
+            <option value="{{ time_value }}">{{ time_label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+      {% if schedule %}
+      <div class="result">
+        <h2>{{ date | date:"l M j" }}</h2>
+        <p>Number of Classrooms Available: {{ classes.count }}</p>
+      </div>
+      {% endif %}
+    </div>
+
     <div class="header">
-    <h1>CPP Classroom Availability Finder</h1>
-    <h2>{{ date | date:"l M j" }}</h2>
-    <p>Number of Classrooms Available: {{ classes.count }}</p>
+      <h1>CPP Classroom Availability Finder</h1>
+      <h2>{{ date | date:"l M j" }}</h2>
+      <p>Number of Classrooms Available: {{ classes.count }}</p>
     </div>
     <div class="class-list">
-        {% for class in classes %}
-            <div class="class-details">
-                <h3>Building {{ class.building }} Room {{ class.room }}</h3>
-                <p>Start Time: {{ class.start_time }}</p>
-                <p>End Time: {{ class.end_time }}</p>
-                <p>Day of the Week: {{ class.day_of_the_week }} </p>
-            </div>
-        {% endfor %}
+      {% for class in classes %}
+      <div class="class-details">
+        <h3>Building {{ class.building }} Room {{ class.room }}</h3>
+        <p>Start Time: {{ class.start_time }}</p>
+        <p>End Time: {{ class.end_time }}</p>
+        <p>Day of the Week: {{ class.day_of_the_week }}</p>
+      </div>
+      {% endfor %}
     </div>
-</body>
+  </body>
 </html>
