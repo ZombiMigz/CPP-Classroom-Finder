@@ -65,7 +65,6 @@ class Command(BaseCommand):
             )
 
     def remove_duplicates(self):
-        
         unique_fields = ['building', 'room', 'start_time', 'end_time', 'day_of_the_week']
 
         # Fetches duplicate if count of row > 1
@@ -121,7 +120,6 @@ class Command(BaseCommand):
 
         for section in sections:
             self.parse_section(section)
-        
         self.remove_duplicates()
 
         driver.close()
