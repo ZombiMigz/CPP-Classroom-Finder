@@ -7,7 +7,7 @@ from selenium.webdriver.remote.webelement import WebElement
 import re
 from src.models import ScheduleBlock
 from django.utils import timezone
-
+from django.db.models import Count, Max
 
 SCHEDULE_WEBSITE = "https://schedule.cpp.edu/"
 TERM = "Spring Semester 2024"
@@ -64,6 +64,27 @@ class Command(BaseCommand):
                 building, room, start_time, end_time, day_of_the_week
             )
 
+    def remove_duplicates(self):
+        
+        unique_fields = ['building', 'room', 'start_time', 'end_time', 'day_of_the_week']
+
+        # Fetches duplicate if count of row > 1
+        duplicates = (
+            ScheduleBlock.objects.values(*unique_fields)
+            .order_by()
+            .annotate(max_id=Max('id'), count_id=Count('id'))
+            .filter(count_id__gt=1)
+        )
+
+        # Removes duplicates from database
+        for duplicate in duplicates:
+            (
+                ScheduleBlock.objects
+                .filter(**{x: duplicate[x] for x in unique_fields})
+                .exclude(id=duplicate['max_id'])
+                .delete()
+            )
+
     def handle(self, *args: Tuple[Any], **kwargs: dict[str, Any]):
         print("Starting Scrape")
 
@@ -100,5 +121,7 @@ class Command(BaseCommand):
 
         for section in sections:
             self.parse_section(section)
+        
+        self.remove_duplicates()
 
         driver.close()
