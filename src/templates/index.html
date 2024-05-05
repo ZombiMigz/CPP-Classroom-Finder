@@ -6,51 +6,27 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CPP Open Classroom Finder</title>
-    <link rel="stylesheet" href="{% static 'index/style.css' %}">
+    <link rel="stylesheet" href="{% static 'index/style.css' %}" />
   </head>
   <body>
     <div class="container">
       <h1>CPP Open Classroom Finder</h1>
       <form method="POST" action="{% url 'index' %}">
         {% csrf_token %}
-        <div class="row">
-          <select name="day">
-            <option disabled selected>Select Day</option>
-            {% for day_value, day_label in form.day.field.choices %}
-            <option value="{{ day_value }}">{{ day_label }}</option>
-            {% endfor %}
-          </select>
-          <select name="start_time">
-            <option value="" disabled selected>Select Start Time</option>
-            {% for time_value, time_label in form.start_time.field.choices %}
-            <option value="{{ time_value }}">{{ time_label }}</option>
-            {% endfor %}
-          </select>
-          <select name="end_time">
-            <option value="" disabled selected>Select End Time</option>
-            {% for time_value, time_label in form.end_time.field.choices %}
-            <option value="{{ time_value }}">{{ time_label }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <button type="submit" name="submit">Submit</button>
+        <div class="row">{{ form.day}} {{form.start_time}} {{form.end_time}}</div>
+        <button type="submit">Submit</button>
       </form>
-      {% if classes %}
-      <div class="result">
+      <div class="header">
         <h2>{{ date | date:"l M j" }}</h2>
         <p>Number of Classrooms Available: {{ classes.count }}</p>
-        <div class="class-list">
-            {% for class in classes %}
-            <div class="class-details">
-              <h3>Building {{ class.building }} Room {{ class.room }}</h3>
-              <p>Start Time: {{ class.start_time }}</p>
-              <p>End Time: {{ class.end_time }}</p>
-              <p>Day of the Week: {{ class.day_of_the_week }}</p>
-            </div>
-            {% endfor %}
-          </div>      
       </div>
-      {% endif %}
+      <div class="class-list">
+        {% for class in classes %}
+        <div class="class-details">
+          <h3>Building {{ class.building }} Room {{ class.room }}</h3>
+        </div>
+        {% endfor %}
+      </div>
     </div>
   </body>
 </html>
