@@ -55,4 +55,4 @@ def index(request: HttpRequest):
                 )
             )
 
-    return render(request, "index.html", {"form": form, "classes": classrooms})
+    return render(request, "index.html", {"form": form, "classes": classrooms, "classes_count": len(classrooms)})
