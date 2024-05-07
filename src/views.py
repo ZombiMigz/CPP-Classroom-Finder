@@ -1,5 +1,6 @@
-from typing import Any, List
-from django.http import HttpRequest
+import re
+from typing import List, Tuple
+from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from src.forms import ClassroomForm
 from src.models import ScheduleBlock
@@ -16,6 +17,66 @@ DAY_OF_THE_WEEK_MAPPING = {
 }
 
 
+def sort_by_building(building: str) -> Tuple[int, str]:
+    match = re.match(r"(\d+)(\D*)", building)
+    if match:
+        return (int(match.group(1)), match.group(2))
+    return (0, "")
+
+
+def get_classrooms(request: HttpRequest) -> HttpResponse:
+    form = ClassroomForm(request.POST)
+    if not form.is_valid():
+        return HttpResponseBadRequest()
+    data = form.cleaned_data
+    # Get all bldgs + rooms that have conflicting blocks
+    query = (
+        ScheduleBlock.objects.filter(
+            start_time__lt=data["end_time"],
+            end_time__gt=data["start_time"],
+            day_of_the_week=DAY_OF_THE_WEEK_MAPPING[int(data["day"])],
+        )
+        .values("building", "room")
+        .distinct()
+    )
+    used_rooms = list(query)
+    # Find all bldg+rooms and filter by used rooms
+    all_classrooms = list(
+        ScheduleBlock.objects.all().values("building", "room").distinct()
+    )
+
+    classrooms = list(
+        filter(
+            lambda classroom: classroom not in used_rooms,
+            all_classrooms,
+        )
+    )
+
+    # Create dictionary mapping each building to list of rooms
+    class_map: dict[str, List[str]] = dict()
+    for classroom in classrooms:
+        building = classroom["building"]
+        room = classroom["room"]
+
+        if building not in class_map:
+            class_map[building] = []
+        class_map[building].append(room)
+    # Sort classes
+    for building in class_map:
+        class_map[building].sort()
+
+    return render(
+        request,
+        "classrooms.html",
+        {
+            "classes": sorted(
+                class_map.items(), key=lambda item: sort_by_building(item[0])
+            ),
+            "classes_count": len(classrooms),
+        },
+    )
+
+
 def index(request: HttpRequest):
     # Default Input
     now = datetime.now()
@@ -27,50 +88,13 @@ def index(request: HttpRequest):
         }
     )
 
-    classrooms: List[dict[str, Any]] = []
-
     if request.method == "POST":
-        form = ClassroomForm(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            # Get all bldgs + rooms that have conflicting blocks
-            query = (
-                ScheduleBlock.objects.filter(
-                    start_time__lt=data["end_time"],
-                    end_time__gt=data["start_time"],
-                    day_of_the_week=DAY_OF_THE_WEEK_MAPPING[int(data["day"])],
-                )
-                .values("building", "room")
-                .distinct()
-            )
-            used_rooms = list(query)
-            # Find all bldg+rooms on a specific day and filter by used rooms
-            all_classrooms = list(
-                ScheduleBlock.objects.filter(
-                    day_of_the_week=DAY_OF_THE_WEEK_MAPPING[int(data["day"])],
-                    ).values("building", "room").distinct()
-            )
+        return get_classrooms(request)
 
-            classrooms = list(
-                filter(
-                    lambda classroom: classroom not in used_rooms,
-                    all_classrooms,
-                )
-            )
-
-            # Create dictionary mapping each building to list of rooms
-            class_map = dict()
-            for classroom in classrooms:
-                building = classroom['building']
-                room = classroom['room']
-
-                if building not in class_map:
-                    class_map[building] = []
-                class_map[building].append(room)
-            # Sort classes
-            for building in class_map:
-                class_map[building].sort()
-
-    return render(request, "index.html", {"form": form,
-                                          "classes": class_map,
-                                          "classes_count": len(classrooms)})
+    return render(
+        request,
+        "index.html",
+        {
+            "form": form,
+        },
+    )

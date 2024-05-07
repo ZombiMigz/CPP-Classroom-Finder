@@ -3,7 +3,7 @@ body {
   font-family: Arial, sans-serif;
   text-align: center;
 }
-.container {
+.wrapper {
   margin-top: 50px;
 }
 h1 {
@@ -15,9 +15,11 @@ form {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 500px;
+  width: 100%;
 }
 .row {
+  display: flex;
+  flex-direction: row;
   margin-top: 20px;
 }
 .row select,
@@ -26,16 +28,7 @@ form {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  width: 125px;
-}
-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  max-width: 200px;
 }
 .result {
   margin-top: 30px;
