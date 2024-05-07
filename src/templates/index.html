@@ -18,14 +18,15 @@
       </form>
       <div class="header">
         {% if classes %}
-        <p>Number of Classrooms Available: {{ classes_count }}</p>
+        <h2>Number of Classrooms Available: {{ classes_count }}</h2>
         {% endif %}
       </div>
       <div class="class-list">
-        {% for class in classes %}
-        <div class="class-details">
-          <h3>Building {{ class.building }} Room {{ class.room }}</h3>
-        </div>
+        {% for building, room_list in classes.items %}
+            <h2>Building {{ building }}</h2>
+              {% for room in room_list %}
+                <p>Room: {{ room }}</p>
+              {% endfor %}
         {% endfor %}
       </div>
     </div>

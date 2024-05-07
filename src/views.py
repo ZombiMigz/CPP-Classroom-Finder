@@ -44,10 +44,13 @@ def index(request: HttpRequest):
                 .distinct()
             )
             used_rooms = list(query)
-            # Find all known bldg+rooms and filter them by used rooms
+            # Find all bldg+rooms on a specific day and filter by used rooms
             all_classrooms = list(
-                ScheduleBlock.objects.all().values("building", "room").distinct()
+                ScheduleBlock.objects.filter(
+                    day_of_the_week=DAY_OF_THE_WEEK_MAPPING[int(data["day"])],
+                    ).values("building", "room").distinct()
             )
+
             classrooms = list(
                 filter(
                     lambda classroom: classroom not in used_rooms,
@@ -55,4 +58,19 @@ def index(request: HttpRequest):
                 )
             )
 
-    return render(request, "index.html", {"form": form, "classes": classrooms, "classes_count": len(classrooms)})
+            # Create dictionary mapping each building to list of rooms
+            class_map = dict()
+            for classroom in classrooms:
+                building = classroom['building']
+                room = classroom['room']
+
+                if building not in class_map:
+                    class_map[building] = []
+                class_map[building].append(room)
+            # Sort classes
+            for building in class_map:
+                class_map[building].sort()
+
+    return render(request, "index.html", {"form": form,
+                                          "classes": class_map,
+                                          "classes_count": len(classrooms)})
