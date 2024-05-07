@@ -1,0 +1,28 @@
+<div class="result">
+  {% if classes %}
+  <h2>Number of Classrooms Available: {{ classes_count }}</h2>
+  {% endif %}
+</div>
+<div class="class-list accordion">
+  {% for building, room_list in classes %}
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button
+        class="accordion-button collapsed"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#collapse{{ building }}"
+      >
+        Building {{ building }}
+      </button>
+    </h2>
+    <div id="collapse{{ building }}" class="accordion-collapse collapse">
+      <div class="accordion-body">
+        {% for room in room_list %}
+        <p>Room: {{ room }}</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>

@@ -1,4 +1,8 @@
 {
+  "emmet.includeLanguages": { "django-html": "html" },
+  "files.associations": {
+    "**/templates/**/*.html": "django-html"
+  },
   "python.analysis.typeCheckingMode": "strict",
   "python.analysis.autoImportCompletions": true,
   "python.analysis.diagnosticSeverityOverrides": {
