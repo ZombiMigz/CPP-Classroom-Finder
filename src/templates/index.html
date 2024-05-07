@@ -6,96 +6,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CPP Open Classroom Finder</title>
-    <style>
-      body {
-        background-color: #f0f0f0;
-        font-family: Arial, sans-serif;
-        text-align: center;
-      }
-      .container {
-        margin-top: 50px;
-      }
-      h1 {
-        color: #333;
-      }
-      form {
-        display: inline-block;
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      }
-      .row {
-        margin-top: 20px;
-      }
-      .row select {
-        margin: 0 10px;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-      }
-      button {
-        margin-top: 20px;
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-      .result {
-        margin-top: 30px;
-      }
-    </style>
+    <link rel="stylesheet" href="{% static 'index/style.css' %}" />
   </head>
   <body>
     <div class="container">
       <h1>CPP Open Classroom Finder</h1>
-      <form method="post">
+      <form method="POST" action="{% url 'index' %}">
         {% csrf_token %}
-        <div class="row">
-          <select name="day">
-            <option value="" disabled selected>Select Day</option>
-            {% for day_value, day_label in form.day.field.choices %}
-            <option value="{{ day_value }}">{{ day_label }}</option>
-            {% endfor %}
-          </select>
-          <select name="start_time">
-            <option value="" disabled selected>Select Start Time</option>
-            {% for time_value, time_label in form.start_time.field.choices %}
-            <option value="{{ time_value }}">{{ time_label }}</option>
-            {% endfor %}
-          </select>
-          <select name="end_time">
-            <option value="" disabled selected>Select End Time</option>
-            {% for time_value, time_label in form.end_time.field.choices %}
-            <option value="{{ time_value }}">{{ time_label }}</option>
-            {% endfor %}
-          </select>
-        </div>
+        <div class="row">{{ form.day}} {{form.start_time}} {{form.end_time}}</div>
         <button type="submit">Submit</button>
       </form>
-      {% if schedule %}
-      <div class="result">
-        <h2>{{ date | date:"l M j" }}</h2>
-        <p>Number of Classrooms Available: {{ classes.count }}</p>
+      <div class="header">
+        {% if classes %}
+        <p>Number of Classrooms Available: {{ classes_count }}</p>
+        {% endif %}
       </div>
-      {% endif %}
-    </div>
-
-    <div class="header">
-      <h2>{{ date | date:"l M j" }}</h2>
-      <p>Number of Classrooms Available: {{ classes.count }}</p>
-    </div>
-    <div class="class-list">
-      {% for class in classes %}
-      <div class="class-details">
-        <h3>Building {{ class.building }} Room {{ class.room }}</h3>
-        <p>Start Time: {{ class.start_time }}</p>
-        <p>End Time: {{ class.end_time }}</p>
-        <p>Day of the Week: {{ class.day_of_the_week }}</p>
+      <div class="class-list">
+        {% for class in classes %}
+        <div class="class-details">
+          <h3>Building {{ class.building }} Room {{ class.room }}</h3>
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
   </body>
 </html>
