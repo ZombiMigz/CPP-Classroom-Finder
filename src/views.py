@@ -57,10 +57,15 @@ def get_classrooms(request: HttpRequest) -> HttpResponse:
     for classroom in classrooms:
         building = classroom["building"]
         room = classroom["room"]
+        start_time = ScheduleBlock.objects.filter(room=room).values("start_time")[0]
+        end_time = ScheduleBlock.objects.filter(room=room).values("end_time")[0]
+
+        # string to display room, start time, and end time
+        room_time_str = f"Room: {room}" + " Start time: " + start_time['start_time'].strftime("%I:%M %p") + " End Time: " + end_time['end_time'].strftime("%I:%M: %p")
 
         if building not in class_map:
             class_map[building] = []
-        class_map[building].append(room)
+        class_map[building].append(room_time_str)
     # Sort classes
     for building in class_map:
         class_map[building].sort()
