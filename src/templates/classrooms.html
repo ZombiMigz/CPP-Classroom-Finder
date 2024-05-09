@@ -3,9 +3,14 @@
   <h2>Number of Classrooms Available: {{ classes_count }}</h2>
   {% endif %}
 </div>
+
+<div class="search">
+  <input type="text" id="building-search" placeholder="Search buildings..." onkeyup="filterBuildings()" />
+</div>
+
 <div class="class-list accordion">
   {% for building, room_list in classes %}
-  <div class="accordion-item">
+  <div class="accordion-item building">
     <h2 class="accordion-header">
       <button
         class="accordion-button collapsed"
@@ -26,3 +31,22 @@
   </div>
   {% endfor %}
 </div>
+
+<script>
+  function filterBuildings() {
+    let input = document.getElementById("building-search");
+    let filter = input.value.toUpperCase();
+    let buildings = document.getElementsByClassName("building");
+
+    for (let i = 0; i < buildings.length; i++) {
+      let building = buildings[i].getElementsByTagName("button")[0];
+      let buildingName = building.textContent || building.innerText;
+
+      if (buildingName.toUpperCase().indexOf(filter) > -1) {
+        buildings[i].style.display = "";
+      } else {
+        buildings[i].style.display = "none";
+      }
+    }
+  }
+</script>
