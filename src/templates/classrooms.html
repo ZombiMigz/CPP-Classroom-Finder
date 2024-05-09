@@ -1,28 +1,51 @@
-<div class="result">
+<div class="result"></div>
   {% if classes %}
-  <h2>Number of Classrooms Available: {{ classes_count }}</h2>
+    <h2>Number of Classrooms Available: {{ classes_count }}</h2> 
   {% endif %}
 </div>
+
+<div class="search"></div>
+  <input type="text" id="building-search" placeholder="Search buildings..." onkeyup="filterBuildings()">
+</div>
+
+
+
 <div class="class-list accordion">
   {% for building, room_list in classes %}
-  <div class="accordion-item">
-    <h2 class="accordion-header">
-      <button
-        class="accordion-button collapsed"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#collapse{{ building }}"
-      >
-        Building {{ building }}
-      </button>
-    </h2>
-    <div id="collapse{{ building }}" class="accordion-collapse collapse">
-      <div class="accordion-body">
-        {% for room in room_list %}
-        <p>Room: {{ room }}</p>
-        {% endfor %}
+    <div class="accordion-item building">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ building }}">
+          Building {{ building }}
+        </button>
+        
+      </h2>
+      <div id="collapse{{ building }}" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          {% for room in room_list %}
+            <p>Room: {{ room }}</p>
+            <p>{{ start_time }}</p>
+          {% endfor %}
+        </div>
       </div>
     </div>
-  </div>
   {% endfor %}
 </div>
+
+<script>
+  function filterBuildings() {
+    let input = document.getElementById('building-search');
+    let filter = input.value.toUpperCase();
+    let buildings = document.getElementsByClassName('building');
+
+    for (let i = 0; i < buildings.length; i++) {
+      let building = buildings[i].getElementsByTagName('button')[0];
+      let buildingName = building.textContent || building.innerText;
+
+      if (buildingName.toUpperCase().indexOf(filter) > -1) {
+        buildings[i].style.display = '';
+      } else {
+        buildings[i].style.display = 'none';
+      }
+    }
+  }
+</script>

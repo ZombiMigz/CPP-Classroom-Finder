@@ -36,7 +36,7 @@ def get_classrooms(request: HttpRequest) -> HttpResponse:
             end_time__gt=data["start_time"],
             day_of_the_week=DAY_OF_THE_WEEK_MAPPING[int(data["day"])],
         )
-        .values("building", "room")
+        .values("building", "room", "start_time", "end_time")
         .distinct()
     )
     used_rooms = list(query)
