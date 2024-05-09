@@ -16,19 +16,21 @@ TERM = "Spring Semester 2024"
 
 class Command(BaseCommand):
     help = "Scrapes CPP website for class schedules"
-    
+
     def remove_invalid_classrooms(self):
-    # Query to identify invalid entries where building or room information is missing or marked as 'TBA'
+        # Query to identify invalid entries where building or room information is missing or marked as 'TBA'
         invalid_entries_query = ScheduleBlock.objects.filter(
-            Q(building__isnull=True) | Q(building__iexact='tba') | 
-            Q(room__isnull=True) | Q(room__iexact='tba')
-    )
-    # First count the invalid entries before deletion for reporting
+            Q(building__isnull=True)
+            | Q(building__iexact="tba")
+            | Q(room__isnull=True)
+            | Q(room__iexact="tba")
+        )
+        # First count the invalid entries before deletion for reporting
         invalid_count = invalid_entries_query.count()
 
-    # Then delete the entries after counting
+        # Then delete the entries after counting
         invalid_entries_query.delete()
-        print(f'Removed {invalid_count} invalid classroom entries')
+        print(f"Removed {invalid_count} invalid classroom entries")
 
     def insert_section_into_database(
         self,
@@ -79,25 +81,30 @@ class Command(BaseCommand):
             )
 
     def remove_duplicates(self):
-        unique_fields = ['building', 'room', 'start_time', 'end_time', 'day_of_the_week']
+        unique_fields = [
+            "building",
+            "room",
+            "start_time",
+            "end_time",
+            "day_of_the_week",
+        ]
 
         # Fetches duplicate if count of row > 1
         duplicates = (
             ScheduleBlock.objects.values(*unique_fields)
             .order_by()
-            .annotate(max_id=Max('id'), count_id=Count('id'))
+            .annotate(max_id=Max("id"), count_id=Count("id"))
             .filter(count_id__gt=1)
         )
 
         # Removes duplicates from database
         for duplicate in duplicates:
             (
-                ScheduleBlock.objects
-                .filter(**{x: duplicate[x] for x in unique_fields})
-                .exclude(id=duplicate['max_id'])
+                ScheduleBlock.objects.filter(**{x: duplicate[x] for x in unique_fields})
+                .exclude(id=duplicate["max_id"])
                 .delete()
             )
-        
+
     def handle(self, *args: Tuple[Any], **kwargs: dict[str, Any]):
         print("Starting Scrape")
 
