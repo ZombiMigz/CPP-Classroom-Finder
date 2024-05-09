@@ -65,10 +65,10 @@ def get_classrooms(request: HttpRequest) -> HttpResponse:
                 building=building,
                 room=room,
                 day_of_the_week=day_of_the_week,
-                start_time__gte=data["end_time"],
+                end_time__lte=data["start_time"],
             )
-            .order_by("start_time")
-            .values("start_time")
+            .order_by("-end_time")
+            .values("end_time")
         )
 
         end_times = (
@@ -76,9 +76,9 @@ def get_classrooms(request: HttpRequest) -> HttpResponse:
                 building=building,
                 room=room,
                 day_of_the_week=day_of_the_week,
-                end_time__lte=data["start_time"],
+                start_time__gte=data["end_time"],
             )
-            .order_by("-end_time")
+            .order_by("start_time")
             .values("start_time")
         )
 
@@ -86,7 +86,7 @@ def get_classrooms(request: HttpRequest) -> HttpResponse:
         room_time_str = (
             f"Room: {room} (Open from "
             + (
-                start_times[0]["start_time"].strftime("%I:%M %p")
+                start_times[0]["end_time"].strftime("%I:%M %p")
                 if len(start_times) > 0
                 else " beginning of day"
             )
