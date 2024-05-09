@@ -40,6 +40,7 @@ def get_classrooms(request: HttpRequest) -> HttpResponse:
         .distinct()
     )
     used_rooms = list(query)
+    print(used_rooms, data)
     # Find all bldg+rooms and filter by used rooms
     all_classrooms = list(
         ScheduleBlock.objects.all().values("building", "room").distinct()
@@ -57,10 +58,49 @@ def get_classrooms(request: HttpRequest) -> HttpResponse:
     for classroom in classrooms:
         building = classroom["building"]
         room = classroom["room"]
+        day_of_the_week = DAY_OF_THE_WEEK_MAPPING[int(data["day"])]
+
+        start_times = (
+            ScheduleBlock.objects.filter(
+                building=building,
+                room=room,
+                day_of_the_week=day_of_the_week,
+                end_time__lte=data["start_time"],
+            )
+            .order_by("-end_time")
+            .values("end_time")
+        )
+
+        end_times = (
+            ScheduleBlock.objects.filter(
+                building=building,
+                room=room,
+                day_of_the_week=day_of_the_week,
+                start_time__gte=data["end_time"],
+            )
+            .order_by("start_time")
+            .values("start_time")
+        )
+
+        # string to display room, start time, and end time
+        room_time_str = (
+            f"Room: {room} (Open from "
+            + (
+                start_times[0]["end_time"].strftime("%I:%M %p")
+                if len(start_times) > 0
+                else " beginning of day"
+            )
+            + " - "
+            + (
+                end_times[0]["start_time"].strftime("%I:%M %p") + ")"
+                if len(end_times) > 0
+                else " end of day)"
+            )
+        )
 
         if building not in class_map:
             class_map[building] = []
-        class_map[building].append(room)
+        class_map[building].append(room_time_str)
     # Sort classes
     for building in class_map:
         class_map[building].sort()
